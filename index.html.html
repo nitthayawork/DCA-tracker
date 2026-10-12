@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>DCA Tracker — VOO + QQQM</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033}
+header{background:#111827;color:#fff;padding:22px 16px;position:sticky;top:0;z-index:5}
+.wrap{max-width:1000px;margin:auto}.brand{font-size:22px;font-weight:800}.sub{opacity:.75;font-size:13px;margin-top:3px}
+nav{display:flex;gap:8px;margin-top:16px;overflow:auto}nav button{border:0;border-radius:10px;padding:9px 13px;background:#263244;color:#fff;white-space:nowrap;font-weight:700}nav button.active{background:#fff;color:#111827}
+main{padding:18px 14px}.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:16px;box-shadow:0 4px 16px #00000008}.label{font-size:12px;color:#6b7280}.big{font-size:25px;font-weight:800;margin-top:5px}.muted{color:#6b7280;font-size:13px}
+.form{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;align-items:end}.field label{display:block;font-size:12px;color:#6b7280;margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:10px;background:#fff;font-size:14px}
+.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer}.primary{background:#111827;color:#fff}.danger{background:#fee2e2;color:#991b1b}.secondary{background:#eef2ff;color:#3730a3}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}th,td{padding:11px 8px;border-bottom:1px solid #edf0f3;text-align:left}th{color:#6b7280;font-size:12px}
+.section-title{font-size:18px;font-weight:800;margin:0 0 12px}.mt{margin-top:16px}
+.bar{height:10px;background:#edf0f3;border-radius:99px;overflow:hidden;margin-top:8px}.bar span{display:block;height:100%;background:#111827;border-radius:99px}
+.empty{text-align:center;padding:30px;color:#6b7280}.hint{background:#fffbeb;border:1px solid #fde68a;padding:12px;border-radius:12px;font-size:13px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr 1fr}.form .wide{grid-column:1/-1}.form .btn{width:100%}table{font-size:12px}th:nth-child(5),td:nth-child(5){display:none}}
+@media(max-width:480px){.grid{grid-template-columns:1fr 1fr}.big{font-size:20px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand">📈 DCA Tracker</div><div class="sub">ติดตามการลงทุน VOO + QQQM · ข้อมูลเก็บในเครื่องนี้อัตโนมัติ</div>
+<nav>
+<button class="active" data-page="dashboard">สรุปภาพรวม</button>
+<button data-page="add">บันทึก DCA</button>
+<button data-page="history">ประวัติ</button>
+<button data-page="settings">ตั้งค่า</button>
+</nav></div></header>
+
+<main class="wrap">
+<section id="dashboard" class="page active">
+<div class="grid">
+<div class="card"><div class="label">ลงทุนสะสม</div><div class="big" id="total">฿0</div></div>
+<div class="card"><div class="label">จำนวนครั้ง</div><div class="big" id="count">0</div></div>
+<div class="card"><div class="label">เฉลี่ย / ครั้ง</div><div class="big" id="avg">฿0</div></div>
+<div class="card"><div class="label">เดือนล่าสุด</div><div class="big" id="last">—</div></div>
+</div>
+<div class="card mt"><h2 class="section-title">สัดส่วนเงินลงทุน</h2>
+<div id="alloc"></div></div>
+<div class="card mt"><h2 class="section-title">สรุปรายเดือน</h2><div id="monthly"></div></div>
+<div class="card mt"><h2 class="section-title">เป้าหมาย 1,000,000 บาท</h2>
+<div class="muted">เป้าหมายจากแผนระยะยาว 30 ปี · DCA ปัจจุบันเดือนละ ฿500</div>
+<div class="bar"><span id="goalbar" style="width:0%"></span></div>
+<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:13px"><span id="goalpct">0%</span><span>฿1,000,000</span></div>
+</div>
+</section>
+
+<section id="add" class="page">
+<div class="card"><h2 class="section-title">บันทึกการลงทุน</h2>
+<form id="form" class="form">
+<div class="field"><label>วันที่</label><input id="date" type="date" required></div>
+<div class="field"><label>จำนวนเงิน (บาท)</label><input id="amount" type="number" min="0" step="0.01" required placeholder="500"></div>
+<div class="field"><label>หุ้น / ETF</label><select id="ticker"><option>VOO</option><option>QQQM</option></select></div>
+<div class="field"><label>หมายเหตุ</label><input id="note" placeholder="เช่น DCA ตุลาคม"></div>
+<button class="btn primary wide">บันทึก</button>
+</form>
+</div>
+<div class="hint mt">💡 แผนเดิมของคุณ: DCA เดือนละ ฿500 → VOO 70% (฿350) + QQQM 30% (฿150) แต่สามารถบันทึกจำนวนจริงที่ลงทุนในแต่ละเดือนได้</div>
+</section>
+
+<section id="history" class="page">
+<div class="card"><h2 class="section-title">ประวัติการลงทุน</h2><div id="historyTable"></div></div>
+</section>
+
+<section id="settings" class="page">
+<div class="card"><h2 class="section-title">ตั้งค่าเป้าหมาย</h2>
+<div class="form" style="grid-template-columns:1fr 1fr auto">
+<div class="field"><label>เงิน DCA เป้าหมาย / เดือน</label><input id="monthlyGoal" type="number" min="0" step="1"></div>
+<div class="field"><label>เป้าหมายเงินสะสม</label><input id="target" type="number" min="0" step="1"></div>
+<button class="btn primary" id="saveSettings">บันทึก</button>
+</div>
+<div class="mt"><button class="btn secondary" id="export">ส่งออกข้อมูล JSON</button> <button class="btn danger" id="clear">ล้างข้อมูลทั้งหมด</button></div>
+</div>
+</section>
+</main>
+
+<script>
+const KEY="dca_tracker_v1";
+let state=JSON.parse(localStorage.getItem(KEY)||'{"records":[],"monthlyGoal":500,"target":1000000}');
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat("th-TH",{style:"currency",currency:"THB",maximumFractionDigits:2}).format(n||0);
+function save(){localStorage.setItem(KEY,JSON.stringify(state));render()}
+function render(){
+  const r=[...state.records].sort((a,b)=>a.date.localeCompare(b.date));
+  const total=r.reduce((s,x)=>s+x.amount,0);
+  $("total").textContent=money(total); $("count").textContent=r.length;
+  $("avg").textContent=money(r.length?total/r.length:0);
+  $("last").textContent=r.length?new Date(r.at(-1).date+"T00:00:00").toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"}):"—";
+  const sums={VOO:0,QQQM:0}; r.forEach(x=>sums[x.ticker]=(sums[x.ticker]||0)+x.amount);
+  $("alloc").innerHTML=["VOO","QQQM"].map(t=>{
+    const p=total?sums[t]/total*100:0;
+    return `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between"><b>${t}</b><span>${money(sums[t])} · ${p.toFixed(1)}%</span></div><div class="bar"><span style="width:${p}%"></span></div></div>`;
+  }).join("");
+  const months={};r.forEach(x=>{const m=x.date.slice(0,7);months[m]=(months[m]||0)+x.amount});
+  const ms=Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0]));
+  $("monthly").innerHTML=ms.length?`<table><thead><tr><th>เดือน</th><th>ลงทุน</th><th>เทียบเป้า</th></tr></thead><tbody>${ms.map(([m,v])=>`<tr><td>${m}</td><td>${money(v)}</td><td>${state.monthlyGoal?((v/state.monthlyGoal)*100).toFixed(0)+"%":"—"}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">ยังไม่มีข้อมูลการลงทุน</div>`;
+  $("goalbar").style.width=Math.min(100,total/(state.target||1000000)*100)+"%";
+  $("goalpct").textContent=(total/(state.target||1000000)*100).toFixed(2)+"%";
+  $("historyTable").innerHTML=r.length?`<table><thead><tr><th>วันที่</th><th>ETF</th><th>จำนวนเงิน</th><th>หมายเหตุ</th><th></th></tr></thead><tbody>${r.slice().reverse().map((x,i)=>`<tr><td>${new Date(x.date+"T00:00:00").toLocaleDateString("th-TH")}</td><td><b>${x.ticker}</b></td><td>${money(x.amount)}</td><td>${x.note||""}</td><td><button class="btn danger" onclick="removeRec('${x.id}')">ลบ</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">ยังไม่มีรายการ</div>`;
+  $("monthlyGoal").value=state.monthlyGoal;$("target").value=state.target;
+}
+function removeRec(id){if(confirm("ลบรายการนี้ใช่หรือไม่?")){state.records=state.records.filter(x=>x.id!==id);save()}}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(b.dataset.page).classList.add("active")});
+$("date").value=new Date().toISOString().slice(0,10);
+$("form").onsubmit=e=>{e.preventDefault();state.records.push({id:crypto.randomUUID(),date:$("date").value,amount:Number($("amount").value),ticker:$("ticker").value,note:$("note").value.trim()});e.target.reset();$("date").value=new Date().toISOString().slice(0,10);save();document.querySelector('[data-page="dashboard"]').click()};
+$("saveSettings").onclick=()=>{state.monthlyGoal=Number($("monthlyGoal").value)||0;state.target=Number($("target").value)||1000000;save();alert("บันทึกการตั้งค่าแล้ว")};
+$("export").onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dca-tracker-backup.json";a.click()};
+$("clear").onclick=()=>{if(confirm("ข้อมูล DCA ทั้งหมดจะถูกลบและกู้คืนไม่ได้จากหน้านี้ ยืนยันหรือไม่?")){state={records:[],monthlyGoal:500,target:1000000};save()}};
+render();
+</script>
+</body></html>
